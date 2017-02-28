@@ -13,16 +13,17 @@ class EchoLayer(YowInterfaceLayer):
         if True:
             receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom(), 'read', messageProtocolEntity.getParticipant())
 
-            # if messageProtocolEntity.getType() == 'text':
-            #     self.onTextMessage(messageProtocolEntity)
-            
-            outgoingMessageProtocolEntity = TextMessageProtocolEntity(messageProtocolEntity.getBody(), to = messageProtocolEntity.getFrom())
-
-            print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
-            if messageProtocolEntity.getBody().lower() == "bye":
-                print "ok bye..."
-                outgoingMessageProtocolEntity = TextMessageProtocolEntity("ok bye bye..", messageProtocolEntity.getBody(), to = messageProtocolEntity.getFrom())
-
+            if messageProtocolEntity.getType() == 'media':
+                self.onMediaMessage(messageProtocolEntity)
+                outgoingMessageProtocolEntity = TextMessageProtocolEntity("Received Media File. Thanks", "", to = messageProtocolEntity.getFrom())    
+            else: # handles b
+                print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
+                if messageProtocolEntity.getBody().lower() == "bye":
+                    print "ok bye..."
+                    outgoingMessageProtocolEntity = TextMessageProtocolEntity("ok bye bye..", to = messageProtocolEntity.getFrom())
+                else:    
+                    outgoingMessageProtocolEntity = TextMessageProtocolEntity(messageProtocolEntity.getBody(), to = messageProtocolEntity.getFrom())
+                
 
             self.toLower(receipt)
             self.toLower(outgoingMessageProtocolEntity)
@@ -39,9 +40,21 @@ class EchoLayer(YowInterfaceLayer):
         self.toLower(ack)
 
 
-    # def onTextMessage(self,messageProtocolEntity):
-    #     # just print info
-    #     print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))  
-    #     if messageProtocolEntity.getBody().__str__() == "bye":
-    #         print "ok bye......"
-    #         outgoingMessageProtocolEntity = TextMessageProtocolEntity("ok bye..", messageProtocolEntity.getBody(), to = messageProtocolEntity.getFrom())
+    # this can handle only simple ascii it seems and not emoji/unicode    
+    def onTextMessage(self,messageProtocolEntity):
+        # just print info
+        print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))  
+        if messageProtocolEntity.getBody().__str__() == "bye":
+            print "ok bye......"
+            outgoingMessageProtocolEntity = TextMessageProtocolEntity("ok bye..", messageProtocolEntity.getBody(), to = messageProtocolEntity.getFrom())
+
+    def onMediaMessage(self, messageProtocolEntity):
+        # just print info
+        if messageProtocolEntity.getMediaType() == "image":
+            print("Echoing image %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
+
+        elif messageProtocolEntity.getMediaType() == "location":
+            print("Echoing location (%s, %s) to %s" % (messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude(), messageProtocolEntity.getFrom(False)))
+
+        elif messageProtocolEntity.getMediaType() == "vcard":
+            print("Echoing vcard (%s, %s) to %s" % (messageProtocolEntity.getName(), messageProtocolEntity.getCardData(), messageProtocolEntity.getFrom(False)))
