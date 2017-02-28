@@ -5,6 +5,7 @@ from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
 from yowsup.env import YowsupEnv
 import ConfigParser
+import sys
 
 
 # load the configuration file
@@ -14,7 +15,7 @@ config = ConfigParser.ConfigParser()
 config.read(cfgFile)
 phone = config.get('user', 'phone')
 password = config.get('user', 'password')
-print "User Phone: %s" % phone
+print "Starting up using user phone: %s" % phone
 
 credentials = (phone, password) 
 
@@ -28,4 +29,11 @@ if __name__==  "__main__":
 
     stack.setCredentials(credentials)
     stack.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))   #sending the connect signal
-    stack.loop() #this is the program mainloop
+
+    try:
+        stack.loop(timeout = 0.5, discrete = 0.5)
+    except AuthError as e:
+        print("Auth Error, reason %s" % e)
+    except KeyboardInterrupt:
+        print("\nYowsdown")
+        sys.exit(0)    
