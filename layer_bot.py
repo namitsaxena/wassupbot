@@ -22,9 +22,7 @@ class EchoLayer(YowInterfaceLayer):
                     print "ok bye..."
                     outgoingMessageProtocolEntity = TextMessageProtocolEntity("ok bye bye..", to = messageProtocolEntity.getFrom())
                 else:    
-                    outgoingMessageProtocolEntity = TextMessageProtocolEntity(messageProtocolEntity.getBody(), to = messageProtocolEntity.getFrom())
-            
-            print "message type %s" % messageProtocolEntity.getType()           
+                    outgoingMessageProtocolEntity = TextMessageProtocolEntity(messageProtocolEntity.getBody(), to = messageProtocolEntity.getFrom())       
                 
 
             self.toLower(receipt)
