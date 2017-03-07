@@ -7,6 +7,7 @@ from yowsup.layers.network import YowNetworkLayer
 from yowsup.env import YowsupEnv
 import ConfigParser
 import sys
+import getopt
 
 #####################################
 #  Load Configuration Data
@@ -26,6 +27,7 @@ stackBuilder = YowStackBuilder()
 #  Send a message
 #####################################
 def send(number, message):
+    print ("Sending Message: number={}, message={}".format(number, message))    
     stack = stackBuilder\
         .pushDefaultLayers(True)\
         .push(SendLayer)\
@@ -70,6 +72,38 @@ def startBot():
 #             MAIN method
 #####################################
 
-if __name__==  "__main__":
-    #send('13120001234', 'TEST MESSAGE')
-    startBot()
+def main(argv):
+    command=''
+    number=''
+    message=''
+
+    try:
+        opts, args = getopt.getopt(argv,"c:n:m:",["command=","number=","message="])
+    except getopt.GetoptError:
+        print 'run.py -c <command=send|bot> -n <number> -m <message>'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print 'run.py -c <command> -n <number> -m <message>'
+            sys.exit()
+        elif opt in ("-c", "--command"):
+            command = arg
+        elif opt in ("-n", "--number"):
+            number = arg
+        elif opt in ("-m", "--message"):
+            message = arg
+
+    print ("command={}, number={}, message={}".format(command, number, message))    
+    
+    if command == 'send':
+        if number == '' or message == '':
+            print "Missing arguments"
+            sys.exit(3)
+        send(number, message)      
+    elif command == 'bot':
+        startBot()
+    else:
+        print ("Unknown command specified '{}'".format(command))    
+
+if __name__==  "__main__": 
+    main(sys.argv[1:])
