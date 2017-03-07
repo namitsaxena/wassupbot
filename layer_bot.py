@@ -15,14 +15,16 @@ class EchoLayer(YowInterfaceLayer):
 
             if messageProtocolEntity.getType() == 'media':
                 self.onMediaMessage(messageProtocolEntity)
-                outgoingMessageProtocolEntity = TextMessageProtocolEntity("Received Media File. Thanks", "", to = messageProtocolEntity.getFrom())    
-            else: # handles b
+                outgoingMessageProtocolEntity = TextMessageProtocolEntity("Received Media File. Thanks", "", to = messageProtocolEntity.getFrom())
+            else:
                 print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
                 if messageProtocolEntity.getBody().lower() == "bye":
                     print "ok bye..."
                     outgoingMessageProtocolEntity = TextMessageProtocolEntity("ok bye bye..", to = messageProtocolEntity.getFrom())
                 else:    
                     outgoingMessageProtocolEntity = TextMessageProtocolEntity(messageProtocolEntity.getBody(), to = messageProtocolEntity.getFrom())
+            
+            print "message type %s" % messageProtocolEntity.getType()           
                 
 
             self.toLower(receipt)

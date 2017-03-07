@@ -1,5 +1,6 @@
 from yowsup.stacks import  YowStackBuilder
-from layer import EchoLayer
+from layer_send import SendLayer
+from layer_bot import EchoLayer
 from yowsup.layers.auth import AuthError
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
@@ -7,8 +8,9 @@ from yowsup.env import YowsupEnv
 import ConfigParser
 import sys
 
-
-# load the configuration file
+#####################################
+#  Load Configuration Data
+#####################################
 cfgFile = './wassupbot.cfg'
 print "Loading configuration from: %s" % cfgFile
 config = ConfigParser.ConfigParser()
@@ -18,8 +20,34 @@ password = config.get('user', 'password')
 print "Starting up using user phone: %s" % phone
 
 credentials = (phone, password) 
+stackBuilder = YowStackBuilder()
 
-if __name__==  "__main__":
+#####################################
+#  Send a message
+#####################################
+def send(number, message):
+    stack = stackBuilder\
+        .pushDefaultLayers(True)\
+        .push(SendLayer)\
+        .build()
+
+    messages =  [([number, message])]    
+    stack.setProp(SendLayer.PROP_MESSAGES, messages)
+    stack.setCredentials(credentials)
+
+    stack.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
+    try:
+        stack.loop()
+    except AuthError as e:
+        print("Authentication Error: %s" % e.message) 
+    except KeyboardInterrupt:
+        print("\nMessage Sent")     
+
+#####################################
+#  Start the bot
+#####################################
+def startBot():
+    print("\nStarting Up Echo Bot. \nListening for incoming messages.... ") 
     stackBuilder = YowStackBuilder()
 
     stack = stackBuilder\
@@ -35,5 +63,13 @@ if __name__==  "__main__":
     except AuthError as e:
         print("Auth Error, reason %s" % e)
     except KeyboardInterrupt:
-        print("\nYowsdown")
-        sys.exit(0)    
+        print("\nBot down now")   
+
+
+#####################################
+#             MAIN method
+#####################################
+
+if __name__==  "__main__":
+    #send('13120001234', 'TEST MESSAGE')
+    startBot()
