@@ -13,16 +13,22 @@ class EchoLayer(YowInterfaceLayer):
         if True:
             receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom(), 'read', messageProtocolEntity.getParticipant())
 
-            if messageProtocolEntity.getType() == 'media':
+            #print ("Message received of type: %s" % messageProtocolEntity.getType()) 
+
+            if messageProtocolEntity.getType() == 'text':
+                print("'%s' <-- %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
+
+                msg = messageProtocolEntity.getBody()
+                reply = self.getReply(msg)
+
+                print("  > '%s' --> %s" % (reply, messageProtocolEntity.getFrom(False)))
+
+                outgoingMessageProtocolEntity = TextMessageProtocolEntity(reply, to = messageProtocolEntity.getFrom())                       
+            elif messageProtocolEntity.getType() == 'media':
                 self.onMediaMessage(messageProtocolEntity)
                 outgoingMessageProtocolEntity = TextMessageProtocolEntity("Received Media File. Thanks", "", to = messageProtocolEntity.getFrom())
             else:
-                print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
-                if messageProtocolEntity.getBody().lower() == "bye":
-                    print "ok bye..."
-                    outgoingMessageProtocolEntity = TextMessageProtocolEntity("ok bye bye..", to = messageProtocolEntity.getFrom())
-                else:    
-                    outgoingMessageProtocolEntity = TextMessageProtocolEntity(messageProtocolEntity.getBody(), to = messageProtocolEntity.getFrom())       
+                outgoingMessageProtocolEntity = TextMessageProtocolEntity("I couldn't understand.", to = messageProtocolEntity.getFrom())
                 
 
             self.toLower(receipt)
@@ -31,7 +37,30 @@ class EchoLayer(YowInterfaceLayer):
             # if messageProtocolEntity.getBody().lower() == "bye":
             #     sys.exit(0) 
 
+    def getReply(self, message):
+        msg = message.lower()
+        reply = ""
 
+        if msg == "hi":
+            reply = "Hi, How are you"
+        elif msg == "hello":
+            reply = "Hello, How are you"
+        elif msg == "bye":
+            reply = "ok bye, ttyl"
+        elif msg == "shutup":
+            reply = "You shutup!!!" + '\U0001F600'.decode('unicode-escape') 
+        elif '\U0001F600'.decode('unicode-escape') in msg \
+            or '\U0001F601'.decode('unicode-escape') in msg \
+            or '\U0001F602'.decode('unicode-escape') in msg \
+            or '\U0001F603'.decode('unicode-escape') in msg \
+            or '\U0001F604'.decode('unicode-escape') in msg \
+            or '\U0001F605'.decode('unicode-escape') in msg \
+            or '\U0001F606'.decode('unicode-escape') in msg \
+            or '\U0001F923'.decode('unicode-escape') in msg:
+            reply = '\U0001F600'.decode('unicode-escape')  + '\U0001F601'.decode('unicode-escape') 
+        else:
+            reply = message       
+        return reply   
 
 
     @ProtocolEntityCallback("receipt")
