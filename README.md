@@ -7,7 +7,8 @@ Currntly it's just a stub. AI engine hasn't been added yet.
 
 
 Execution
-Execute: run.py 
+- Execute: run.py 
+
 Dependency: 
 - yowsup should have been installed. pip install yowsup2
 
