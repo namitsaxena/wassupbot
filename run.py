@@ -1,6 +1,7 @@
 from yowsup.stacks import  YowStackBuilder
 from layer_send import SendLayer
 from layer_bot import EchoLayer
+from layer_bot_witai import WitaiLayer
 from yowsup.layers.auth import AuthError
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
@@ -18,6 +19,7 @@ config = ConfigParser.ConfigParser()
 config.read(cfgFile)
 phone = config.get('user', 'phone')
 password = config.get('user', 'password')
+chatbot_access_key = config.get('chatbot', 'witai_access_key')
 print "Starting up using user phone: %s" % phone
 
 credentials = (phone, password) 
@@ -49,12 +51,17 @@ def send(number, message):
 #  Start the bot
 #####################################
 def startBot():
-    print("\nStarting Up Echo Bot. \nListening for incoming messages.... ") 
+    print("\nStarting Up Chat Bot. \nListening for incoming messages.... ") 
     stackBuilder = YowStackBuilder()
 
+    # initialize wit.ai client
+    witai = WitaiLayer()
+    witai.setup(chatbot_access_key)
+
+    #.push(EchoLayer)
     stack = stackBuilder\
         .pushDefaultLayers(True)\
-        .push(EchoLayer)\
+        .push(witai)\
         .build()
 
     stack.setCredentials(credentials)
@@ -71,6 +78,11 @@ def startBot():
 #####################################
 #             MAIN method
 #####################################
+def printUsage():
+    print 'Usage:-'
+    print ' run.py -c <command=send|bot> -n <number> -m <message>'
+    print ' Example: run.py -c bot'
+    sys.exit(2)
 
 def main(argv):
     command=''
@@ -80,12 +92,11 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"c:n:m:",["command=","number=","message="])
     except getopt.GetoptError:
-        print 'run.py -c <command=send|bot> -n <number> -m <message>'
-        sys.exit(2)
+        printUsage()
+
     for opt, arg in opts:
         if opt == '-h':
-            print 'run.py -c <command> -n <number> -m <message>'
-            sys.exit()
+            printUsage()
         elif opt in ("-c", "--command"):
             command = arg
         elif opt in ("-n", "--number"):
@@ -103,7 +114,8 @@ def main(argv):
     elif command == 'bot':
         startBot()
     else:
-        print ("Unknown command specified '{}'".format(command))    
+        print ("Unknown command specified '{}'".format(command)) 
+        printUsage()   
 
 if __name__==  "__main__": 
     main(sys.argv[1:])
