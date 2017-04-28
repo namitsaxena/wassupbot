@@ -20,7 +20,6 @@ config.read(cfgFile)
 phone = config.get('user', 'phone')
 password = config.get('user', 'password')
 chatbot_access_key = config.get('chatbot', 'witai_access_key')
-print "Starting up using user phone: %s" % phone
 
 credentials = (phone, password) 
 stackBuilder = YowStackBuilder()
@@ -51,7 +50,7 @@ def send(number, message):
 #  Start the bot
 #####################################
 def startBot():
-    print("\nStarting Up Chat Bot. \nListening for incoming messages.... ") 
+    print("\nStarting Up Chat Bot.") 
     stackBuilder = YowStackBuilder()
 
     # initialize wit.ai client
@@ -64,6 +63,7 @@ def startBot():
         .push(witai)\
         .build()
 
+    print("Listening for messages using phone:{}".format(credentials[0]))    
     stack.setCredentials(credentials)
     stack.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))   #sending the connect signal
 
@@ -80,7 +80,8 @@ def startBot():
 #####################################
 def printUsage():
     print 'Usage:-'
-    print ' run.py -c <command=send|bot> -n <number> -m <message>'
+    print ' run.py -c <command=send|bot> -n <number> -m <message> -u <user phone number> -p <password> -k <chat api access key>'
+    print ' user phone number, password and key are required only of not provided in the configuration file'
     print ' Example: run.py -c bot'
     sys.exit(2)
 
@@ -88,9 +89,13 @@ def main(argv):
     command=''
     number=''
     message=''
+    global phone
+    global password
+    global chatbot_access_key
+    global credentials
 
     try:
-        opts, args = getopt.getopt(argv,"c:n:m:",["command=","number=","message="])
+        opts, args = getopt.getopt(argv,"c:n:m:u:p:k:",["command=","number=","message="])
     except getopt.GetoptError:
         printUsage()
 
@@ -103,8 +108,16 @@ def main(argv):
             number = arg
         elif opt in ("-m", "--message"):
             message = arg
+        elif opt in ("-u", "--userphone"):
+            phone = arg
+        elif opt in ("-p", "--password"):
+            password = arg
+        elif opt in ("-k", "--key"):
+            chatbot_access_key = arg
 
     print ("command={}, number={}, message={}".format(command, number, message))    
+
+    credentials = (phone, password) 
     
     if command == 'send':
         if number == '' or message == '':
