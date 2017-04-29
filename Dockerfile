@@ -17,11 +17,10 @@ RUN apt-get update && \
 RUN pip install -r requirements.txt
 
 # Define environment variable
-# not needed
-ENV NAME World
+# ENV NAME="WORLD"
 
-# Run run.py when the container launches
-ENTRYPOINT ["python", "run.py"]
+# Entry point can alose be used to run but not preferable
+# ENTRYPOINT ["python", "run.py"]
 
 # arguments for the script
-CMD ["-c", "bot"]
+CMD ["python", "run.py", "-c", "bot"]

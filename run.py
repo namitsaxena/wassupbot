@@ -9,6 +9,7 @@ from yowsup.env import YowsupEnv
 import ConfigParser
 import sys
 import getopt
+import os
 
 #####################################
 #  Load Configuration Data
@@ -81,7 +82,8 @@ def startBot():
 def printUsage():
     print 'Usage:-'
     print ' run.py -c <command=send|bot> -n <number> -m <message> -u <user phone number> -p <password> -k <chat api access key>'
-    print ' user phone number, password and key are required only of not provided in the configuration file'
+    print ' user phone number, password and key are required if not provided in the configuration file or as environment variables'
+    print ' Environment variables supported: WA_PHONE, WA_PASSWORD, CHAT_ENGINE_KEY'
     print ' Example: run.py -c bot'
     sys.exit(2)
 
@@ -93,6 +95,18 @@ def main(argv):
     global password
     global chatbot_access_key
     global credentials
+
+    #print("ENV: {}".format(os.environ))
+    
+    # Check environment variables for credentials first
+    # these can override configuration file but
+    # the command line can override these 
+    if os.environ.get('WA_PHONE') != None:
+        phone = os.environ.get('WA_PHONE')
+    if os.environ.get('WA_PASSWORD') != None:
+        password = os.environ.get('WA_PASSWORD')
+    if os.environ.get('CHAT_ENGINE_KEY') != None:
+        chatbot_access_key = os.environ.get('CHAT_ENGINE_KEY')
 
     try:
         opts, args = getopt.getopt(argv,"c:n:m:u:p:k:",["command=","number=","message="])
